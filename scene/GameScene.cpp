@@ -27,6 +27,9 @@ void GameScene::Initialize() {
 	// x,y,z軸周りの回転角を設定
 	worldTransform.rotation_ = {4.0f, 4.0f, 0.0f};
 
+	// x,y,z軸周りの平行移動を設定
+	worldTransform.translation_ = {0.0f, 10.0f, 0.0f};
+
 	// ワールドトランスフォームの初期化
 	worldTransform.Initialize();
 
