@@ -28,30 +28,22 @@ void GameScene::Initialize() {
 	// メルセンヌ・ツイスター
 	std::mt19937_64 engine(seed_gen());
 
-	// 乱数範囲(回転角)
-	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
+	defVec = {0, 0, 1};
 
-	// 乱数範囲(座標)
-	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
+	centerVec = defVec;
 
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		// x,y,z方向のスケーリングを設定
-		worldTransform[i].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform[0].scale_ = {5.0f, 5.0f, 5.0f};
+		worldTransform[1].scale_ = {2.0f, 2.0f, 2.0f};
 
 		// x,y,z軸周りの回転角を設定
-		worldTransform[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
+		worldTransform[i].rotation_ = {0, 0, 0};
 
 		// x,y,z軸周りの平行移動を設定
-		worldTransform[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
-	}
+		worldTransform[0].translation_ = {0, 0, 0};
+		worldTransform[1].translation_ = {0, 0, 25};
 
-	// カメラ視点座標を設定
-	viewProjection.eye = {0, 0, -10};
-
-	// カメラ注視店座標を設定
-	viewProjection.target = {10, 0, 0};
-
-	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		// ワールドトランスフォームの初期化
 		worldTransform[i].Initialize();
 	}
@@ -61,6 +53,40 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+	// 物体の移動
+	// 移動ベクトル
+	XMFLOAT3 bMove = {0, 0, 0};
+
+	// 方向ベクトル
+	XMFLOAT3 vMove = {0, 0, 0};
+
+	// 速さ
+	const float kBodySpeed = 1.0f;
+	const float kVecSpeed = 0.02f;
+
+	// 押した方向に移動
+	if (input_->PushKey(DIK_UP)) {
+		bMove.z = kBodySpeed * (centerVec.z);
+		bMove.x = kBodySpeed * (centerVec.x);
+	} else if (input_->PushKey(DIK_DOWN)) {
+		bMove.z = -kBodySpeed * (centerVec.z);
+		bMove.x = -kBodySpeed * (centerVec.x);
+	}
+
+	// 方向転換
+	if (input_->PushKey(DIK_RIGHT)) {
+		worldTransform[0].rotation_.y += kVecSpeed;
+		centerVec.x = sinf(worldTransform[0].rotation_.y);
+		centerVec.z = cosf(worldTransform[0].rotation_.y);
+	} else if (input_->PushKey(DIK_LEFT)) {
+		worldTransform[0].rotation_.y -= kVecSpeed;
+		centerVec.x = sinf(worldTransform[0].rotation_.y);
+		centerVec.z = cosf(worldTransform[0].rotation_.y);
+	}
+
+	worldTransform[0].translation_.z += bMove.z;
+	worldTransform[0].translation_.x += bMove.x;
+	
 	// 視点移動処理
 	// 視点の移動ベクトル
 	XMFLOAT3 move = {0, 0, 0};
@@ -70,9 +96,9 @@ void GameScene::Update() {
 
 	// 押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_W)) {
-		move = {0, 0, kEyeSpeed};
+		move = {0, kEyeSpeed, 0};
 	} else if (input_->PushKey(DIK_S)) {
-		move = {0, 0, -kEyeSpeed};
+		move = {0, -kEyeSpeed, 0};
 	}
 
 	// 視点の移動(ベクトルの加算)
@@ -80,13 +106,24 @@ void GameScene::Update() {
 	viewProjection.eye.y += move.y;
 	viewProjection.eye.z += move.z;
 
+	for (size_t i = 0; i < _countof(worldTransform); i++) {
+		if (input_->PushKey(DIK_Z)) {
+			worldTransform[i].translation_ = {0, 0, 0};
+		}
+	}
+
 	// 行列の再計算
+	worldTransform[0].UpdateMatrix();
 	viewProjection.UpdateMatrix();
 
-	//// デバッグ用
-	// debugText_->SetPos(50, 50);
-	// debugText_->Printf(
-	//   "eye(%f,%f,%f)", viewProjection.eye.x, viewProjection.eye.y, viewProjection.eye.z);
+	// デバッグ用
+	debugText_->SetPos(50, 50);
+	debugText_->Printf("centerVec(%f,%f,%f)", centerVec.x, centerVec.y, centerVec.z);
+	debugText_->SetPos(50, 70);
+	debugText_->Printf(
+	  "rotateD(%f, %f, %f)", XMConvertToDegrees(worldTransform[0].rotation_.x),
+	  XMConvertToDegrees(worldTransform[0].rotation_.y),
+	  XMConvertToDegrees(worldTransform[0].rotation_.z));
 }
 
 void GameScene::Draw() {

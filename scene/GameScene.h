@@ -11,6 +11,8 @@
 #include "WorldTransform.h"
 #include <DirectXMath.h>
 
+using namespace DirectX;
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -48,6 +50,12 @@ class GameScene {
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
 
+	// 基準ベクトル
+	XMFLOAT3 defVec;
+
+	// 正面用のベクトル
+	XMFLOAT3 centerVec;
+
 	// テクスチャハンドル
 	uint32_t textureHandle = 0;
 
@@ -55,7 +63,7 @@ class GameScene {
 	Model* model = nullptr;
 
 	// ワールドトランスフォーム
-	WorldTransform worldTransform[100];
+	WorldTransform worldTransform[2];
 
 	// ビュープロジェクション
 	ViewProjection viewProjection;
