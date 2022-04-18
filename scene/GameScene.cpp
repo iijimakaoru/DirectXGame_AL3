@@ -48,6 +48,9 @@ void GameScene::Initialize() {
 	// カメラ視点座標を設定
 	viewProjection.eye = {0, 0, -10};
 
+	// カメラ注視店座標を設定
+	viewProjection.target = {10, 0, 0};
+
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		// ワールドトランスフォームの初期化
 		worldTransform[i].Initialize();
