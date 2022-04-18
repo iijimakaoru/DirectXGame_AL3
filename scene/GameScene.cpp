@@ -48,8 +48,6 @@ void GameScene::Initialize() {
 	// カメラ視点座標を設定
 	viewProjection.eye = {0, 0, -10};
 
-	Update();
-
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		// ワールドトランスフォームの初期化
 		worldTransform[i].Initialize();
