@@ -34,19 +34,25 @@ void GameScene::Initialize() {
 
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		// x,y,z方向のスケーリングを設定
-		worldTransform[0].scale_ = {5.0f, 5.0f, 5.0f};
-		worldTransform[1].scale_ = {2.0f, 2.0f, 2.0f};
+		worldTransform[0].scale_ = {4.0f, 4.0f, 4.0f};
+		worldTransform[1].scale_ = {0.5f, 0.5f, 0.5f};
 
 		// x,y,z軸周りの回転角を設定
-		worldTransform[i].rotation_ = {0, 0, 0};
+		worldTransform[0].rotation_ = {0, 0, 0};
+		worldTransform[1].rotation_ = {0, 0, 0};
 
 		// x,y,z軸周りの平行移動を設定
 		worldTransform[0].translation_ = {0, 0, 0};
-		worldTransform[1].translation_ = {0, 0, 25};
+		worldTransform[1].translation_ = {0, 0, 1.5f};
 
 		// ワールドトランスフォームの初期化
-		worldTransform[i].Initialize();
+		worldTransform[0].Initialize();
+
+		worldTransform[1].parent_ = &worldTransform[0];
+		worldTransform[1].Initialize();
 	}
+
+	viewProjection.eye.y = 3;
 
 	// ビュープロジェクションの初期化
 	viewProjection.Initialize();
@@ -114,6 +120,7 @@ void GameScene::Update() {
 
 	// 行列の再計算
 	worldTransform[0].UpdateMatrix();
+	worldTransform[1].UpdateMatrix();
 	viewProjection.UpdateMatrix();
 
 	// デバッグ用
@@ -153,7 +160,8 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
-		model->Draw(worldTransform[i], viewProjection, textureHandle);
+		model->Draw(worldTransform[0], viewProjection, textureHandle);
+		model->Draw(worldTransform[1], viewProjection, textureHandle);
 	}
 
 	// 3Dオブジェクト描画後処理
