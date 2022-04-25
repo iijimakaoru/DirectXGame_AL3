@@ -63,10 +63,12 @@ class GameScene {
 	Model* model = nullptr;
 
 	// ワールドトランスフォーム
-	WorldTransform worldTransform[2];
+	WorldTransform worldTransform[6];
 
 	// ビュープロジェクション
 	ViewProjection viewProjection;
+
+	const float cameraDistance = 15.0f;
 
 	/// <summary>
 	/// ゲームシーン用

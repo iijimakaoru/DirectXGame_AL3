@@ -2,6 +2,7 @@
 #include "TextureManager.h"
 #include <cassert>
 #include <random>
+#include <vector>
 
 using namespace DirectX;
 
@@ -34,25 +35,30 @@ void GameScene::Initialize() {
 
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		// x,y,z方向のスケーリングを設定
-		worldTransform[0].scale_ = {4.0f, 4.0f, 4.0f};
+		worldTransform[0].scale_ = {2.0f, 2.0f, 2.0f};
 		worldTransform[1].scale_ = {0.5f, 0.5f, 0.5f};
+		worldTransform[2].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform[3].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform[4].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform[5].scale_ = {1.0f, 1.0f, 1.0f};
 
 		// x,y,z軸周りの回転角を設定
-		worldTransform[0].rotation_ = {0, 0, 0};
-		worldTransform[1].rotation_ = {0, 0, 0};
+		worldTransform[i].rotation_ = {0, 0, 0};
 
 		// x,y,z軸周りの平行移動を設定
 		worldTransform[0].translation_ = {0, 0, 0};
 		worldTransform[1].translation_ = {0, 0, 3};
-
-		// ワールドトランスフォームの初期化
-		worldTransform[0].Initialize();
+		worldTransform[2].translation_ = {4, -6, 6};
+		worldTransform[3].translation_ = {12, -6, 6};
+		worldTransform[4].translation_ = {-4, -6, 6};
+		worldTransform[5].translation_ = {-12, -6, 6};
 
 		worldTransform[1].parent_ = &worldTransform[0];
-		worldTransform[1].Initialize();
+		// ワールドトランスフォームの初期化
+		worldTransform[i].Initialize();
 	}
 
-	viewProjection.eye.y = 20;
+	viewProjection.eye.y = 10;
 
 	// ビュープロジェクションの初期化
 	viewProjection.Initialize();
@@ -68,7 +74,7 @@ void GameScene::Update() {
 
 	// 速さ
 	const float kBodySpeed = 1.0f;
-	const float kVecSpeed = 0.02f;
+	const float kVecSpeed = 0.05f;
 
 	// 押した方向に移動
 	if (input_->PushKey(DIK_UP)) {
@@ -92,7 +98,7 @@ void GameScene::Update() {
 
 	worldTransform[0].translation_.z += bMove.z;
 	worldTransform[0].translation_.x += bMove.x;
-	
+
 	// 視点移動処理
 	// 視点の移動ベクトル
 	XMFLOAT3 move = {0, 0, 0};
@@ -100,15 +106,29 @@ void GameScene::Update() {
 	// 視点の移動の速さ
 	const float kEyeSpeed = 0.2f;
 
+	viewProjection.target = worldTransform->translation_;
+	viewProjection.eye.z = worldTransform->translation_.z + (cameraDistance * -centerVec.z);
+	viewProjection.eye.x = worldTransform->translation_.x + (cameraDistance * -centerVec.x);
+
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		if (input_->PushKey(DIK_Z)) {
-			worldTransform[i].translation_ = {0, 0, 0};
+			// 回転角初期化
+			worldTransform[i].rotation_ = {0, 0, 0};
+			centerVec = defVec;
+			// 場所初期化
+			worldTransform[0].translation_ = {0, 0, 0};
+			worldTransform[1].translation_ = {0, 0, 3};
+			worldTransform[2].translation_ = {4, -6, 6};
+			worldTransform[3].translation_ = {12, -6, 6};
+			worldTransform[4].translation_ = {-4, -6, 6};
+			worldTransform[5].translation_ = {-12, -6, 6};
 		}
 	}
 
 	// 行列の再計算
-	worldTransform[0].UpdateMatrix();
-	worldTransform[1].UpdateMatrix();
+	for (size_t i = 0; i < _countof(worldTransform); i++) {
+		worldTransform[i].UpdateMatrix();
+	}
 	viewProjection.UpdateMatrix();
 
 	// デバッグ用
@@ -122,7 +142,6 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
@@ -148,8 +167,7 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
-		model->Draw(worldTransform[0], viewProjection, textureHandle);
-		model->Draw(worldTransform[1], viewProjection, textureHandle);
+		model->Draw(worldTransform[i], viewProjection, textureHandle);
 	}
 
 	// 3Dオブジェクト描画後処理
