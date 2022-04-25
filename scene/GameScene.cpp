@@ -43,7 +43,7 @@ void GameScene::Initialize() {
 
 		// x,y,z軸周りの平行移動を設定
 		worldTransform[0].translation_ = {0, 0, 0};
-		worldTransform[1].translation_ = {0, 0, 1.5f};
+		worldTransform[1].translation_ = {0, 0, 3};
 
 		// ワールドトランスフォームの初期化
 		worldTransform[0].Initialize();
@@ -52,7 +52,7 @@ void GameScene::Initialize() {
 		worldTransform[1].Initialize();
 	}
 
-	viewProjection.eye.y = 3;
+	viewProjection.eye.y = 20;
 
 	// ビュープロジェクションの初期化
 	viewProjection.Initialize();
@@ -99,18 +99,6 @@ void GameScene::Update() {
 
 	// 視点の移動の速さ
 	const float kEyeSpeed = 0.2f;
-
-	// 押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_W)) {
-		move = {0, kEyeSpeed, 0};
-	} else if (input_->PushKey(DIK_S)) {
-		move = {0, -kEyeSpeed, 0};
-	}
-
-	// 視点の移動(ベクトルの加算)
-	viewProjection.eye.x += move.x;
-	viewProjection.eye.y += move.y;
-	viewProjection.eye.z += move.z;
 
 	for (size_t i = 0; i < _countof(worldTransform); i++) {
 		if (input_->PushKey(DIK_Z)) {
